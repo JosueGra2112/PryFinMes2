@@ -1,6 +1,8 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Predicción de Precios de Toyota</title>
     <style>
         body {
@@ -22,6 +24,7 @@
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             width: 80%;
+            max-width: 500px;
             margin-top: 30px;
         }
         label {
@@ -36,7 +39,7 @@
             border: 1px solid #ccc;
             border-radius: 4px;
         }
-        input[type="submit"], button {
+        input[type="submit"] {
             width: 100%;
             padding: 10px;
             border: none;
@@ -46,7 +49,7 @@
             font-size: 16px;
             cursor: pointer;
         }
-        input[type="submit"]:hover, button:hover {
+        input[type="submit"]:hover {
             background-color: #0056b3;
         }
         #resultado {
@@ -58,15 +61,19 @@
     <script>
         function predictPrice(event) {
             event.preventDefault();
-            const formData = new FormData(document.getElementById('formulario'));
-            const searchParams = new URLSearchParams();
-            for (const pair of formData) {
-                searchParams.append(pair[0], pair[1]);
-            }
+            const age = document.getElementById('age').value;
+            const km = document.getElementById('km').value;
+            const hp = document.getElementById('hp').value;
+            const doors = document.getElementById('doors').value;
+            const weight = document.getElementById('weight').value;
+            const fuelType_Petrol = document.getElementById('fuelType_Petrol').checked ? 1 : 0;
 
             fetch('/predict', {
                 method: 'POST',
-                body: searchParams,
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `age=${age}&km=${km}&hp=${hp}&doors=${doors}&weight=${weight}&fuelType_Petrol=${fuelType_Petrol}`,
             })
             .then(response => response.json())
             .then(data => {

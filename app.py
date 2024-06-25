@@ -12,17 +12,18 @@ app = Flask(__name__)
 # Configurar el registro
 logging.basicConfig(level=logging.DEBUG)
 
-# Cargar el modelo entrenado y el scaler
+# Definir la función create_model
 def create_model():
     model = Sequential()
-    model.add(Input(shape=(6,)))  # Cambiar el tamaño de entrada a 6 para las características seleccionadas
-    model.add(Dense(64, activation='relu'))  # Capa de entrada
-    model.add(Dense(32, activation='relu'))  # Capa oculta
-    model.add(Dense(8, activation='relu'))   # Capa oculta
-    model.add(Dense(1))  # Capa de salida
+    model.add(Input(shape=(6,)))
+    model.add(Dense(64, activation='relu'))
+    model.add(Dense(32, activation='relu'))
+    model.add(Dense(8, activation='relu'))
+    model.add(Dense(1))
     model.compile(loss='mean_squared_error', optimizer='adam')
     return model
 
+# Cargar el modelo entrenado
 model = joblib.load('modelo.pkl')
 app.logger.debug('Modelo cargado correctamente.')
 
