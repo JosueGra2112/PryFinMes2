@@ -58,26 +58,22 @@
     <script>
         function predictPrice(event) {
             event.preventDefault();
-            const age = document.getElementById('age').value;
-            const km = document.getElementById('km').value;
-            const hp = document.getElementById('hp').value;
-            const doors = document.getElementById('doors').value;
-            const weight = document.getElementById('weight').value;
-            const fuelType_Petrol = document.getElementById('fuelType_Petrol').checked ? 1 : 0;
+            const formData = new FormData(document.getElementById('formulario'));
+            const searchParams = new URLSearchParams();
+            for (const pair of formData) {
+                searchParams.append(pair[0], pair[1]);
+            }
 
             fetch('/predict', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: `age=${age}&km=${km}&hp=${hp}&doors=${doors}&weight=${weight}&fuelType_Petrol=${fuelType_Petrol}`,
+                body: searchParams,
             })
             .then(response => response.json())
             .then(data => {
                 if (data.error) {
                     document.getElementById('resultado').innerText = 'Error: ' + data.error;
                 } else {
-                    document.getElementById('resultado').innerText = 'Precio predicho: ' + data.precio_predicho;
+                    document.getElementById('resultado').innerText = 'Precio predicho: ' + data.prediction;
                 }
             })
             .catch(error => {
