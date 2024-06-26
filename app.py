@@ -1,31 +1,31 @@
 from flask import Flask, request, render_template, jsonify
-import joblib
 import pandas as pd
-import numpy as np
+import joblib
 import logging
-import tensorflow as tf
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Dense, Input
 
 app = Flask(__name__)
 
 # Configurar el registro
 logging.basicConfig(level=logging.DEBUG)
 
-# Definir la función create_model
-def create_model():
-    model = Sequential()
-    model.add(Input(shape=(6,)))
-    model.add(Dense(64, activation='relu'))
-    model.add(Dense(32, activation='relu'))
-    model.add(Dense(8, activation='relu'))
-    model.add(Dense(1))
-    model.compile(loss='mean_squared_error', optimizer='adam')
-    return model
+# Ruta del archivo CSV
+csv_path = 'ToyotaCorolla.csv'
 
-# Cargar el modelo entrenado
+# Cargar los datos
+try:
+    data = pd.read_csv(csv_path)
+    app.logger.debug('Datos cargados correctamente.')
+    data = data[['Age', 'KM', 'HP', 'MetColor', 'Weight', 'FuelType', 'Price']].dropna()
+    app.logger.debug('Datos limpios, NaN eliminados.')
+except FileNotFoundError as e:
+    app.logger.error(f'Error al cargar los datos: {str(e)}')
+    data = None
+
+# Definir el scaler
+scaler = joblib.load('scaler.pkl')
+
+# Cargar el modelo
 model = joblib.load('modelo.pkl')
-app.logger.debug('Modelo cargado correctamente.')
 
 @app.route('/')
 def home():
@@ -34,22 +34,30 @@ def home():
 @app.route('/predict', methods=['POST'])
 def predict():
     try:
+        # Imprimir los datos recibidos
+        app.logger.debug(f'Datos recibidos: {request.form}')
+
         # Obtener los datos enviados en el request
         age = float(request.form['age'])
         km = float(request.form['km'])
         hp = float(request.form['hp'])
-        doors = float(request.form['doors'])
+        metcolor = float(request.form['metcolor'])
         weight = float(request.form['weight'])
-        fuelType_Petrol = int(request.form.get('fuelType_Petrol', 0))
+        fuel_type = int(request.form['fuel_type'])
 
         # Crear un DataFrame con los datos
-        data_df = pd.DataFrame([[age, km, hp, doors, weight, fuelType_Petrol]], 
-                               columns=['Age', 'KM', 'HP', 'Doors', 'Weight', 'FuelType_Petrol'])
-        app.logger.debug(f'DataFrame creado: {data_df}')
+        input_data = pd.DataFrame([[age, km, hp, metcolor, weight, fuel_type]], 
+                                  columns=['Age', 'KM', 'HP', 'MetColor', 'Weight', 'FuelType'])
+
+        app.logger.debug(f'Datos de entrada: {input_data}')
+
+        # Escalar los datos
+        input_data_scaled = scaler.transform(input_data)
+        app.logger.debug(f'Datos escalados: {input_data_scaled}')
 
         # Realizar predicciones
-        prediction = model.predict(data_df)
-        app.logger.debug(f'Predicción: {prediction[0]}')
+        prediction = model.predict(input_data_scaled)
+        app.logger.debug(f'Predicción: {prediction}')
 
         # Devolver las predicciones como respuesta JSON
         return jsonify({'prediction': float(prediction[0])})
