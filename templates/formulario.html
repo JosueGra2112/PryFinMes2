@@ -29,7 +29,7 @@
             margin-bottom: 8px;
             font-weight: bold;
         }
-        input[type="text"] {
+        input[type="text"], select {
             width: 100%;
             padding: 8px;
             margin-bottom: 20px;
@@ -54,10 +54,16 @@
             font-size: 16px;
             color: #333;
         }
+        img {
+            width: 100%;
+            max-width: 300px;
+            margin-bottom: 20px;
+        }
     </style>
 </head>
 <body>
     <h1>Predicción de Precios de Toyota</h1>
+    <img src="https://www.toyota.mx/sites/default/files/images/home/modulo_hybrid-autos_3.png" alt="Toyota">
     <form id="formulario">
         <label for="age">Año (Age):</label>
         <input type="text" id="age" name="age" required>
@@ -69,13 +75,20 @@
         <input type="text" id="hp" name="hp" required>
 
         <label for="metcolor">MetColor:</label>
-        <input type="text" id="metcolor" name="metcolor" required>
+        <select id="metcolor" name="metcolor" required>
+            <option value="0">No metálico</option>
+            <option value="1">Metálico</option>
+        </select>
 
         <label for="weight">Peso (Weight):</label>
         <input type="text" id="weight" name="weight" required>
 
         <label for="fuel_type">Tipo de combustible (FuelType):</label>
-        <input type="text" id="fuel_type" name="fuel_type" required>
+        <select id="fuel_type" name="fuel_type" required>
+            <option value="0">Gasolina</option>
+            <option value="1">Diesel</option>
+            <option value="2">Eléctrico</option>
+        </select>
 
         <input type="submit" value="Enviar">
         <div id="resultado"></div>
